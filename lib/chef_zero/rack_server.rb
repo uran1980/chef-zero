@@ -22,6 +22,7 @@ require 'timeout'
 require 'chef_zero/version'
 require 'chef_zero/rack_app'
 require 'webrick/log'
+require 'webrick/version'
 
 module ChefZero
   class RackServer
@@ -54,6 +55,13 @@ module ChefZero
     attr_reader :app
 
     def start(options = {})
+      if options[:publish]
+        puts ">> Starting Chef Zero (v#{ChefZero::VERSION}) ..."
+        data_store.publish_description.lines { |line| puts ">> #{line}" }
+        puts ">> WEBrick (v#{WEBrick::VERSION}) on Rack (v#{Rack::VERSION}) is listening at #{url}"
+        puts ">> Press CTRL+C to stop"
+      end
+
       @server.start do |actual_server|
         @actual_server = actual_server
       end

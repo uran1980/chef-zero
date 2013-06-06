@@ -46,6 +46,7 @@ module ChefZero
     def start(options = {})
       if options[:publish]
         puts ">> Starting Chef Zero (v#{ChefZero::VERSION})..."
+        data_store.publish_description.lines { |line| puts ">> #{line}" }
         puts ">> Puma (v#{Puma::Const::PUMA_VERSION}) is listening at #{url}"
         puts ">> Press CTRL+C to stop"
       end

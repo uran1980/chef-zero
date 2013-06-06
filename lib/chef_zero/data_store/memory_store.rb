@@ -48,6 +48,10 @@ module ChefZero
         create(['users'], 'admin', '{ "admin": true }')
       end
 
+      def publish_description
+        "data in memory"
+      end
+
       def create_dir(path, name, *options)
         parent = _get(path, options.include?(:recursive))
 
