@@ -21,8 +21,7 @@ require 'rack'
 require 'timeout'
 require 'chef_zero/version'
 require 'chef_zero/rack_app'
-require 'webrick/log'
-require 'webrick/version'
+require 'thin'
 
 module ChefZero
   class RackServer
@@ -32,23 +31,26 @@ module ChefZero
       :log_level => :info,
       :generate_real_keys => false,
       :data_store => nil,
-      :server => 'webrick'
+      :server => 'thin'
     }.freeze
 
     def initialize(options = {})
       options = DEFAULT_OPTIONS.merge(options)
       @app = ChefZero::RackApp.new("http://#{options[:host]}:#{options[:port]}", options)
       ChefZero::Log.level = options[:log_level].to_sym
-      @server = Rack::Server.new(
+      Thin::Logging.silent = true
+      thin_options = {
         :app => @app,
         :server => options[:server],
         :Port => options[:port],
         :Host => options[:host],
         :environment => :none,
         # 5 == debug, 3 == warning
-        :Logger => WEBrick::Log.new(STDOUT, 3),
+#        :Logger => WEBrick::Log.new(STDOUT, 3),
         :AccessLog => [] # Remove this option to enable the access log when debugging.
-      )
+      }
+      thin_options[:signals] = options[:signals] if options[:signals]
+      @server = Rack::Server.new(thin_options)
     end
 
     attr_reader :server
@@ -58,7 +60,7 @@ module ChefZero
       if options[:publish]
         puts ">> Starting Chef Zero (v#{ChefZero::VERSION}) ..."
         data_store.publish_description.lines { |line| puts ">> #{line}" }
-        puts ">> WEBrick (v#{WEBrick::VERSION}) on Rack (v#{Rack::VERSION}) is listening at #{url}"
+        puts ">> Thin (v#{Thin::VERSION}) on Rack (v#{Rack::VERSION}) is listening at #{url}"
         puts ">> Press CTRL+C to stop"
       end
 
@@ -88,14 +90,14 @@ module ChefZero
     end
 
     def running?
-      @actual_server && @actual_server.status == :Running
+      @actual_server && @actual_server.running? #status == :Running for webrick
     end
 
     def stop(wait = 5)
       if @thread
         @thread.join(wait)
       else
-        server.stop(true)
+        server.stop!
       end
     rescue
       ChefZero::Log.error "Server did not stop within #{wait} seconds. Killing..."

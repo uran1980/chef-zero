@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.homepage = 'http://www.opscode.com'
 
   s.add_dependency 'rack'
+  s.add_dependency 'thin'
   s.add_dependency 'mixlib-log',    '~> 1.3'
   s.add_dependency 'hashie',        '~> 2.0'
   s.add_dependency 'moneta',        '< 0.7.0' # For chef, see CHEF-3721
