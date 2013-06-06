@@ -53,10 +53,6 @@ module ChefZero
     attr_reader :server
     attr_reader :app
 
-    def data_store
-      app.data_store
-    end
-
     def start(options = {})
       @server.start do |actual_server|
         @actual_server = actual_server
@@ -98,6 +94,34 @@ module ChefZero
       @thread.kill if @thread
     ensure
       @thread = nil
+    end
+
+    def url
+      app.url
+    end
+
+    def data_store
+      app.data_store
+    end
+
+    def on_request(&block)
+      app.on_request(&block)
+    end
+
+    def on_response(&block)
+      app.on_response(&block)
+    end
+
+    def request_handler(&block)
+      app.request_handler(&block)
+    end
+
+    def load_data(contents)
+      app.load_data(contents)
+    end
+
+    def clear_data
+      app.clear_data
     end
   end
 end
