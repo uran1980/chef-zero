@@ -16,10 +16,10 @@
 # limitations under the License.
 #
 
-require 'chef_zero/puma_server'
+require 'chef_zero/rack_server'
 
 module ChefZero
-  class Server < PumaServer
+  class Server < RackServer
     def initialize(options = {})
       super
     end
